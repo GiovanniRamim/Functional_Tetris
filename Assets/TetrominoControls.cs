@@ -14,12 +14,12 @@ public class TetrominoControls : MonoBehaviour
         return piecePool[random.Next(0, piecePool.Count)];
     }
 
-    public static Tetromino ttm_create_new(GameField gf)
+    public static Tetromino ttm_create_new(ObjectGrid3 gf)
     {
         return new Tetromino(bn_map_pickRandom(), gf);
     }
 
-    public static Tetromino ttm_create_copy(Tetromino ttm, GameField gf)
+    public static Tetromino ttm_create_copy(Tetromino ttm, ObjectGrid3 gf)
     {
         return new Tetromino(ttm.GetPieceGroup(), gf);
     }
@@ -74,14 +74,14 @@ public class TetrominoControls : MonoBehaviour
         return sPieceMap;
     }
 
-    public static Tetromino createTetromino(GameField field)
+    public static Tetromino createTetromino(ObjectGrid3 field)
     {
         Tetromino newTetromino = TetrominoControls.ttm_create_new(field);
         TetrominoControls.bn_map_forEachTrue(GraphicDefs.blk_draw, newTetromino);
         return newTetromino;
     }
 
-    public static Tetromino cloneTetromino(Tetromino ttm, GameField field)
+    public static Tetromino cloneTetromino(Tetromino ttm, ObjectGrid3 field)
     {
         if (ttm == null) return null;
         Tetromino clone = TetrominoControls.ttm_create_copy(ttm, field);
@@ -89,7 +89,7 @@ public class TetrominoControls : MonoBehaviour
         return clone;
     }
 
-    public static void fitPiece(BlockGroup blockGroup, GameField field)
+    public static void fitPiece(BlockGroup blockGroup, ObjectGrid3 field)
     {
         bool goDown()
         {
