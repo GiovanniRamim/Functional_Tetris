@@ -9,8 +9,11 @@ public class Grid_Cell : MonoBehaviour
     void OnDrawGizmos()
     {
         // Draw a yellow sphere at the transform's position
-        Gizmos.color = Color.yellow;
-        //Gizmos.DrawWireCube(transform.position, this.GetComponentInParent<GameObject>().transform.localScale);
+        if (GetComponentInParent<ObjectGrid3>().debugMode)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(transform.position, this.GetComponentInParent<ObjectGrid3>().CellLocalScale);
+        }
     }
 
 

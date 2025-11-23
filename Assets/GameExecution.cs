@@ -17,6 +17,12 @@ public class GameExecution : MonoBehaviour
     public static ObjectGrid3 hold;
     public static ObjectGrid3 next;
     public static Text score;
+    public GameObject rootObject_MainGrid;
+
+    public ObjectGrid3_Settings MainGrid_Settings;
+    public ObjectGrid3_Settings HoldGrid_Settings;
+    public ObjectGrid3_Settings NextGrid_Settings;
+
     public Image gamePanel;
     public Image holdPanel;
     public Image nextPanel;
@@ -49,9 +55,15 @@ public class GameExecution : MonoBehaviour
     };
 
     void Start() {
-        field = createField(new ObjectGrid3((10, 20), gamePanel));
-        hold = createField(new ObjectGrid3((5, 4), holdPanel));
-        next = createField(new ObjectGrid3((5, 4), nextPanel));
+        MainGrid_Settings.Container = gamePanel.gameObject;
+        field = ObjectGrid3.initialize(MainGrid_Settings);
+
+        HoldGrid_Settings.Container = holdPanel.gameObject;
+        hold = ObjectGrid3.initialize(HoldGrid_Settings);
+
+        NextGrid_Settings.Container = nextPanel.gameObject;
+        next = ObjectGrid3.initialize(NextGrid_Settings);
+
         nextTetromino = TetrominoControls.createTetromino(next);
         score = scoreCounter;
         score.text = 0.ToString();
@@ -160,11 +172,6 @@ public class GameExecution : MonoBehaviour
         return null;
     }
 
-    public ObjectGrid3 createField(ObjectGrid3 field)
-    {
-        return field.createField();
-    }
-
     static void updateField(Tetromino ttm) // Destroys a line and move the remaining pieces down
     {
        bool checkRow(int row, int curr)
@@ -252,7 +259,7 @@ public class Block
         gameObject.AddComponent<MeshFilter>().mesh = mesh;
         gameObject.GetComponent<MeshRenderer>().material = material;
         gameField = field;
-        gameObject.transform.localScale = field.cellLocalScale;
+        gameObject.transform.localScale = field.CellLocalScale;
     }
 
     public Block Move(int _direction)
