@@ -18,12 +18,12 @@ public class GraphicDefs : MonoBehaviour
         ghostMaterial = in_ghostMaterial;
     }
 
-    static Block blk_draw(GameField gameField)
+    static Block blk_draw(ObjectGrid3 gameField)
     {
         return new Block(blockMesh, blockMaterial, gameField);
     }
 
-    static Block ght_draw(GameField gameField)
+    static Block ght_draw(ObjectGrid3 gameField)
     {
         return new Block(blockMesh, ghostMaterial, gameField);
     }

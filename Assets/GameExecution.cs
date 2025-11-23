@@ -13,10 +13,16 @@ public class GameExecution : MonoBehaviour
     float tick = 1f;
 
     static System.Random random = new System.Random();
-    public static GameField field;
-    public static GameField hold;
-    public static GameField next;
+    public static ObjectGrid3 field;
+    public static ObjectGrid3 hold;
+    public static ObjectGrid3 next;
     public static Text score;
+    public GameObject rootObject_MainGrid;
+
+    public ObjectGrid3_Settings MainGrid_Settings;
+    public ObjectGrid3_Settings HoldGrid_Settings;
+    public ObjectGrid3_Settings NextGrid_Settings;
+
     public Image gamePanel;
     public Image holdPanel;
     public Image nextPanel;
@@ -49,9 +55,15 @@ public class GameExecution : MonoBehaviour
     };
 
     void Start() {
-        field = createField(new GameField((10, 20), gamePanel));
-        hold = createField(new GameField((5, 4), holdPanel));
-        next = createField(new GameField((5, 4), nextPanel));
+        MainGrid_Settings.Container = gamePanel.gameObject;
+        field = ObjectGrid3.initialize(MainGrid_Settings);
+
+        HoldGrid_Settings.Container = holdPanel.gameObject;
+        hold = ObjectGrid3.initialize(HoldGrid_Settings);
+
+        NextGrid_Settings.Container = nextPanel.gameObject;
+        next = ObjectGrid3.initialize(NextGrid_Settings);
+
         nextTetromino = TetrominoControls.createTetromino(next);
         score = scoreCounter;
         score.text = 0.ToString();
@@ -160,29 +172,6 @@ public class GameExecution : MonoBehaviour
         return null;
     }
 
-    public GameField createField(GameField field)
-    {
-        (int width, int height) dimentions = field.GetDimentions();
-        (GameObject space, Block child)[] newField = new (GameObject, Block)[dimentions.width * dimentions.height];
-        Vector2 halfUnit = new Vector2((field.GetUnit().x / 2), (field.GetUnit().y / 2));
-        (float X, float Y) location = (0, 0);
-
-        for (int i = 0; i < newField.Length; i++)
-        {
-            newField[i].space = new GameObject();
-            newField[i].space.transform.parent = field.GetPanel().transform;
-            newField[i].space.transform.localPosition = new Vector3(location.X * field.GetUnit().x + halfUnit.x, location.Y * field.GetUnit().y + halfUnit.y, 0);
-            newField[i].child = null;
-            //this will determine the location
-            location.X = location.X + 1;
-            if (location.X % dimentions.width == 0)
-            {
-                location = (0, location.Y + 1);
-            }
-        }
-        return field.setField(newField);
-    }
-
     static void updateField(Tetromino ttm) // Destroys a line and move the remaining pieces down
     {
        bool checkRow(int row, int curr)
@@ -262,15 +251,15 @@ public class Block
 
     public int index = 0;
 
-    public GameField gameField;
+    public ObjectGrid3 gameField;
 
-    public Block(Mesh mesh, Material material, GameField field)
+    public Block(Mesh mesh, Material material, ObjectGrid3 field)
     {
         gameObject.AddComponent<MeshRenderer>();
         gameObject.AddComponent<MeshFilter>().mesh = mesh;
         gameObject.GetComponent<MeshRenderer>().material = material;
         gameField = field;
-        gameObject.transform.localScale = new Vector3(field.GetUnit().x, field.GetUnit().y, field.GetUnit().x * 2);
+        gameObject.transform.localScale = field.CellLocalScale;
     }
 
     public Block Move(int _direction)
@@ -293,54 +282,11 @@ public class Assets
     public static int[][] tI = { new int[] { 4, 4, 4, 4 }, new int[] { 0, 15 } };
 }
 
-
-public class GameField {
-
-    (GameObject space, Block child)[] field;
-
-    (int width, int height) dimentions;
-
-    Image parentPanel;
-
-    public GameField((int width, int height) newDimentions, Image panel)
-    {
-        dimentions = newDimentions;
-        parentPanel = panel;
-    }
-
-    public (int width, int height) GetDimentions()
-    {
-        return dimentions;
-    }
-
-    public (GameObject space, Block child)[] GetField()
-    {
-        return field;
-    }
-
-    public GameField setField((GameObject space, Block child)[] newField)
-    {
-        field = newField;
-        return this;
-    }
-
-    public Image GetPanel()
-    {
-        return parentPanel;
-    }
-
-    public Vector2 GetUnit()
-    {
-        RectTransform rect = parentPanel.GetComponent<RectTransform>();
-        return new Vector2(rect.sizeDelta.x / dimentions.width, rect.sizeDelta.y / dimentions.height);
-    }
-} 
-
 public interface BlockGroup
 {
     List<Block> GetBlocks();
     Vector2Int GetLocation();
-    GameField GetField();
+    ObjectGrid3 GetField();
     void SetLocation(Vector2Int newLocation);
     BlockGroup SetBlock(List<Block> block);
     void CleanBlocks();
@@ -354,10 +300,10 @@ public class Tetromino : BlockGroup
     Vector2Int location;
     public int rotation;
     int[][] pieceGroup;
-    GameField gameField;
+    ObjectGrid3 gameField;
     public Ghost ghost;
 
-    public Tetromino(int[][] pieceGroup, GameField field)
+    public Tetromino(int[][] pieceGroup, ObjectGrid3 field)
     {
         this.pieceGroup = pieceGroup;
         this.gameField = field;
@@ -427,7 +373,7 @@ public class Tetromino : BlockGroup
         ghost = new Ghost(this);
     }
 
-    public GameField GetField()
+    public ObjectGrid3 GetField()
     {
         return gameField;
     }
@@ -437,7 +383,7 @@ public class Ghost : BlockGroup
 {
     Vector2Int location;
     List<Block> blocks = new List<Block>();
-    GameField gameField;
+    ObjectGrid3 gameField;
 
     public Ghost(Tetromino tetromino)
     {
@@ -481,7 +427,7 @@ public class Ghost : BlockGroup
         return null;
     }
 
-    public GameField GetField()
+    public ObjectGrid3 GetField()
     {
         return gameField;
     }
